@@ -1,0 +1,168 @@
+# Dependencies
+node_modules/
+*/node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Production builds
+dist/
+*/dist/
+backend/dist/
+frontend/dist/
+dist-ssr/
+*.local
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.npm/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+backend/data/*.db
+!backend/data/challenge_template.db  # Keep template file if needed
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env*.local
+*.env
+
+# IDE and Editor directories
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.iml
+.vim/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+.pytest_cache/
+jest-coverage/
+
+# TypeScript
+*.tsbuildinfo
+.tscache/
+
+# Package manager files
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.yarn-integrity
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+volumes/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+
+# Cache
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist/
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.eslintcache
+.stylelintcache
+
+# Security
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+.cert/
+certificates/
+
+# Misc
+.history/
+.vscode-test/
+*.pid
+*.seed
+*.pid.lock
+.grunt/
+bower_components/
+.lock-wscript
+.node_repl_history
+*.tgz
+.yarn-integrity
+.env.test
+.cache
+.parcel-cache
+.next
+out
+.nuxt
+.vuepress/dist
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.vscode-test/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Project specific
+main.db
+backend/data/main.db
+uploads/
+sessions/
