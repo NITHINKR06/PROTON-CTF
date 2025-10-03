@@ -6,12 +6,13 @@ import { AdminDashboard } from '../components/admin/AdminDashboard';
 import { AdminUsers } from '../components/admin/AdminUsers';
 import { AdminQueries } from '../components/admin/AdminQueries';
 import { AdminSettings } from '../components/admin/AdminSettings';
+import { AdminFlagManager } from '../components/admin/AdminFlagManager';
 import { getAdminStats } from '../services/api';
 
 export const AdminPage: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState<'dashboard' | 'users' | 'queries' | 'settings'>('dashboard');
+  const [activeSection, setActiveSection] = useState<'dashboard' | 'users' | 'queries' | 'settings' | 'flag'>('dashboard');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -112,6 +113,7 @@ export const AdminPage: React.FC = () => {
               {activeSection === 'users' && <AdminUsers />}
               {activeSection === 'queries' && <AdminQueries />}
               {activeSection === 'settings' && <AdminSettings />}
+              {activeSection === 'flag' && <AdminFlagManager />}
             </>
           )}
         </div>

@@ -37,43 +37,43 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 scanline">
-      <div className="terminal-window max-w-2xl w-full">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 scanline">
+      <div className="terminal-window max-w-2xl w-full animate-slide-in">
         <div className="terminal-header">
           <div className="flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <div className="w-3 h-3 rounded-full bg-red-400 hover:bg-red-500 transition-colors"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-400 hover:bg-yellow-500 transition-colors"></div>
+            <div className="w-3 h-3 rounded-full bg-green-400 hover:bg-green-500 transition-colors"></div>
           </div>
-          <span className="text-green-400 font-bold">SQL CTF Challenge - Login</span>
+          <span className="text-white font-bold">PROTON Terminal - Authentication</span>
           <div className="w-16"></div>
         </div>
 
         <div className="terminal-body space-y-6 p-8">
-          {/* ASCII Art Header */}
-          <pre className="text-green-500 text-xs glow-text text-center">
+          {/* ASCII Art Header with gradient effect */}
+          <pre className="gradient-text text-xs font-bold text-center select-none">
 {`
-███████╗ ██████╗ ██╗         ██████╗████████╗███████╗
-██╔════╝██╔═══██╗██║        ██╔════╝╚══██╔══╝██╔════╝
-███████╗██║   ██║██║        ██║        ██║   █████╗  
-╚════██║██║▄▄ ██║██║        ██║        ██║   ██╔══╝  
-███████║╚██████╔╝███████╗   ╚██████╗   ██║   ██║     
-╚══════╝ ╚══▀▀═╝ ╚══════╝    ╚═════╝   ╚═╝   ╚═╝     
+██████╗ ██████╗  ██████╗ ████████╗ ██████╗ ███╗   ██╗
+██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝██╔═══██╗████╗  ██║
+██████╔╝██████╔╝██║   ██║   ██║   ██║   ██║██╔██╗ ██║
+██╔═══╝ ██╔══██╗██║   ██║   ██║   ██║   ██║██║╚██╗██║
+██║     ██║  ██║╚██████╔╝   ██║   ╚██████╔╝██║ ╚████║
+╚═╝     ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
 `}
           </pre>
 
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold text-green-400 glow-text">
-              Welcome to SQL Injection CTF
+            <h1 className="text-3xl font-bold gradient-text">
+              Association Terminal
             </h1>
-            <p className="text-green-600">
-              {isLogin ? 'Login to continue your challenge' : 'Register to start the challenge'}
+            <p className="text-slate-600">
+              {isLogin ? 'Welcome back! Login to continue' : 'Create an account to start the challenge'}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-green-500 mb-2 font-bold">
+              <label className="block text-cyan-700 mb-2 font-bold text-sm">
                 <span className="terminal-prompt">$</span> USERNAME
               </label>
               <input
@@ -89,7 +89,7 @@ export const LoginPage: React.FC = () => {
 
             {!isLogin && (
               <div>
-                <label className="block text-green-500 mb-2 font-bold">
+                <label className="block text-cyan-700 mb-2 font-bold text-sm">
                   <span className="terminal-prompt">$</span> EMAIL
                 </label>
                 <input
@@ -105,7 +105,7 @@ export const LoginPage: React.FC = () => {
             )}
 
             <div>
-              <label className="block text-green-500 mb-2 font-bold">
+              <label className="block text-cyan-700 mb-2 font-bold text-sm">
                 <span className="terminal-prompt">$</span> PASSWORD
               </label>
               <input
@@ -121,7 +121,7 @@ export const LoginPage: React.FC = () => {
             </div>
 
             {error && (
-              <div className="border-2 border-red-500 bg-red-900/20 text-red-400 px-4 py-3 rounded font-mono text-sm">
+              <div className="bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-lg font-mono text-sm">
                 <span className="font-bold">ERROR:</span> {error}
               </div>
             )}
@@ -129,22 +129,34 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn-terminal w-full text-lg"
+              className="btn-terminal w-full text-lg flex items-center justify-center gap-2"
             >
-              {loading ? 'PROCESSING...' : (isLogin ? 'LOGIN' : 'REGISTER')}
+              {loading ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  <span>PROCESSING...</span>
+                </>
+              ) : (
+                isLogin ? 'LOGIN' : 'REGISTER'
+              )}
             </button>
           </form>
 
-          <div className="text-center pt-4 border-t-2 border-green-900">
+          <div className="text-center pt-4 border-t-2 border-cyan-200">
             <button
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError('');
               }}
-              className="text-green-500 hover:text-green-400 transition-colors"
+              className="text-cyan-600 hover:text-cyan-700 font-medium transition-colors"
             >
               {isLogin ? '→ Create new account' : '→ Already have an account?'}
             </button>
+          </div>
+
+          <div className="text-center text-xs text-slate-500 mt-4">
+            <p>PROTON Terminal v1.0.0</p>
+            <p>Type 'help' for available commands</p>
           </div>
         </div>
       </div>

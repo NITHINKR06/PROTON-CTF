@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { useChallengeState } from '../hooks/useChallengeState';
 
 interface ChallengeWelcomeProps {
@@ -6,9 +7,27 @@ interface ChallengeWelcomeProps {
 }
 
 export const ChallengeWelcome: React.FC<ChallengeWelcomeProps> = ({ onStart }) => {
+  const { user } = useAuth();
   const { challengeState, startChallengeTimer } = useChallengeState();
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [typedText, setTypedText] = useState('');
+  
+  const welcomeText = 'SQL INJECTION CHALLENGE TERMINAL';
+  
+  useEffect(() => {
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index < welcomeText.length) {
+        setTypedText(prev => prev + welcomeText.charAt(index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 40);
+    
+    return () => clearInterval(timer);
+  }, []);
 
   const handleStart = async () => {
     setLoading(true);
@@ -24,16 +43,6 @@ export const ChallengeWelcome: React.FC<ChallengeWelcomeProps> = ({ onStart }) =
     }
   };
 
-  if (challengeState.loading) {
-    return (
-      <div className="terminal-window h-full flex items-center justify-center">
-        <div className="text-green-500 font-bold text-xl">
-          Loading<span className="blink">█</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="terminal-window h-full">
       <div className="terminal-header">
@@ -42,99 +51,97 @@ export const ChallengeWelcome: React.FC<ChallengeWelcomeProps> = ({ onStart }) =
           <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
         </div>
-        <span className="text-green-400 font-bold">SQL CTF CHALLENGE</span>
-        <div className="w-6"></div>
+        <span className="text-green-400 font-bold">SQL CTF</span>
+        <div className="w-4"></div>
       </div>
 
-      <div className="terminal-body p-8 flex flex-col items-center justify-center">
-        <pre className="text-green-500 text-xs sm:text-sm md:text-base glow-text mb-8">
-{`
-███████╗ ██████╗ ██╗         ██████╗████████╗███████╗
-██╔════╝██╔═══██╗██║        ██╔════╝╚══██╔══╝██╔════╝
-███████╗██║   ██║██║        ██║        ██║   █████╗  
-╚════██║██║▄▄ ██║██║        ██║        ██║   ██╔══╝  
-███████║╚██████╔╝███████╗   ╚██████╗   ██║   ██║     
-╚══════╝ ╚══▀▀═╝ ╚══════╝    ╚═════╝   ╚═╝   ╚═╝     
-`}
-        </pre>
-
-        <h1 className="text-3xl font-bold text-green-400 mb-4 glow-text text-center">
-          Welcome to the SQL Injection Challenge
-        </h1>
-
-        <div className="max-w-2xl text-center mb-8">
-          <p className="text-green-300 mb-4">
-            Your mission is to exploit SQL injection vulnerabilities to extract a 
-            hidden flag from the database. The clock starts when you're ready.
-          </p>
-          
-          <div className="bg-black/50 border-2 border-green-700 rounded-lg p-4 text-left mb-6">
-            <h3 className="text-green-400 font-bold mb-2">⚠️ MISSION PARAMETERS</h3>
-            <ul className="text-green-500 space-y-1 text-sm">
-              <li>• You must find the hidden FLAG{`...`} in the database</li>
-              <li>• Once you start, your time will be recorded</li>
-              <li>• Submit the exact flag to complete the challenge</li>
-              <li>• Faster times earn higher rankings</li>
-              <li>• Hints are available but with time delays</li>
-            </ul>
-          </div>
-          
-          {challengeState.isStarted && !challengeState.completed ? (
-            <div className="bg-green-900/30 border-2 border-green-700 rounded-lg p-4 mb-6">
-              <p className="text-green-400">
-                Challenge already in progress! Continue your mission.
-              </p>
-            </div>
-          ) : challengeState.completed ? (
-            <div className="bg-yellow-900/30 border-2 border-yellow-500 rounded-lg p-4 mb-6">
-              <h3 className="text-yellow-400 font-bold mb-2">🏆 CHALLENGE COMPLETED!</h3>
-              <p className="text-green-300">
-                You've already solved this challenge with a time of{' '}
-                <span className="text-yellow-400 font-bold">
-                  {formatTime(
-                    challengeState.completionTime && challengeState.startTime
-                      ? challengeState.completionTime - challengeState.startTime
-                      : 0
-                  )}
-                </span>
-              </p>
-              <p className="text-green-500 mt-2">
-                You can review the challenge or check the leaderboard.
-              </p>
-            </div>
-          ) : null}
-
-          {error && (
-            <div className="bg-red-900/30 border-2 border-red-700 rounded-lg p-4 mb-6 text-red-400">
-              {error}
-            </div>
-          )}
+      <div className="terminal-body p-6 flex flex-col items-center justify-center">
+        {/* Logo/Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-green-400 glow-text text-center">
+            {typedText}<span className="blink">█</span>
+          </h1>
         </div>
-
+        
+        {/* System Info */}
+        <div className="bg-black/30 border border-green-700 rounded-lg p-4 mb-8 w-full max-w-xl">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <div className="text-green-600">USER</div>
+              <div className="text-green-400 font-bold">{user?.username || 'guest'}</div>
+            </div>
+            <div>
+              <div className="text-green-600">ACCESS</div>
+              <div className="text-green-400 font-bold">{user?.isAdmin ? 'ADMIN' : 'USER'}</div>
+            </div>
+            <div>
+              <div className="text-green-600">CHALLENGE</div>
+              <div className="text-green-400 font-bold">SQL INJECTION</div>
+            </div>
+            <div>
+              <div className="text-green-600">POINTS</div>
+              <div className="text-green-400 font-bold">500</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Mission Brief */}
+        <div className="bg-black/30 border border-green-700 rounded-lg p-4 mb-8 w-full max-w-xl">
+          <h2 className="text-green-500 font-bold mb-2 border-b border-green-800 pb-1">MISSION BRIEF</h2>
+          <p className="text-green-300 mb-3">
+            Your objective is to extract the hidden FLAG from a vulnerable database using SQL injection techniques.
+          </p>
+          <ul className="space-y-1 text-sm text-green-400">
+            <li className="flex items-center">
+              <span className="text-green-500 mr-2">►</span>
+              Find and exploit SQL injection vulnerabilities
+            </li>
+            <li className="flex items-center">
+              <span className="text-green-500 mr-2">►</span>
+              Discover hidden database tables
+            </li>
+            <li className="flex items-center">
+              <span className="text-green-500 mr-2">►</span>
+              Extract and submit the FLAG to complete the challenge
+            </li>
+          </ul>
+        </div>
+        
+        {error && (
+          <div className="bg-red-900/30 border border-red-700 rounded-lg p-3 mb-6 text-red-400 w-full max-w-xl">
+            {error}
+          </div>
+        )}
+        
+        {/* Start Button */}
         <button
           onClick={handleStart}
           disabled={loading}
-          className="btn-terminal text-xl py-3 px-8"
+          className="btn-terminal px-8 py-3 text-lg"
         >
           {loading ? (
-            <span>INITIALIZING<span className="blink">█</span></span>
+            <>
+              INITIALIZING<span className="blink">█</span>
+            </>
           ) : challengeState.isStarted ? (
             'CONTINUE MISSION'
-          ) : challengeState.completed ? (
-            'REVIEW CHALLENGE'
           ) : (
-            'START MISSION'
+            'START CHALLENGE'
           )}
         </button>
+        
+        {/* Status indicators */}
+        <div className="mt-8 flex gap-6 text-xs">
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
+            <span className="text-green-500">System Ready</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse mr-2"></div>
+            <span className="text-yellow-500">Database Connected</span>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
-
-// Helper function to format time in minutes and seconds
-function formatTime(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}m ${seconds}s`;
-}

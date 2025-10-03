@@ -4,81 +4,73 @@
 
 @layer base {
   body {
-    @apply bg-black text-green-400 antialiased;
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    @apply bg-gray-900 text-gray-200 antialiased min-h-screen;
+    font-family: 'Inter', 'SF Pro', 'system-ui', sans-serif;
   }
 }
 
 @layer components {
+  /* Terminal Window */
   .terminal-window {
-    @apply bg-black border-2 border-green-500 rounded-lg shadow-2xl shadow-green-500/20;
+    @apply bg-gray-800 border border-gray-700 rounded-lg shadow-lg;
   }
   
   .terminal-header {
-    @apply bg-green-900 px-4 py-2 flex items-center justify-between border-b-2 border-green-500;
+    @apply bg-gray-900 px-4 py-3 flex items-center justify-between rounded-t-lg border-b border-gray-700;
   }
   
   .terminal-body {
-    @apply p-4 font-mono text-sm;
+    @apply p-6 font-mono text-sm text-gray-300 bg-gray-800 rounded-b-lg;
   }
   
   .terminal-output {
-    @apply text-green-400 leading-relaxed;
+    @apply text-gray-300 leading-relaxed;
   }
   
   .terminal-input {
-    @apply bg-transparent border-none outline-none text-green-400 w-full font-mono;
+    @apply bg-transparent border-none outline-none text-gray-200 w-full font-mono placeholder-gray-500;
   }
   
   .terminal-prompt {
-    @apply text-green-500 font-bold select-none;
+    @apply text-cyan-400 font-bold select-none;
   }
   
+  /* Buttons */
   .btn-terminal {
-    @apply px-4 py-2 bg-green-600 hover:bg-green-500 text-black font-bold rounded transition-colors shadow-lg shadow-green-500/50;
+    @apply px-6 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-lg transition-colors shadow-md hover:shadow-lg;
   }
   
   .btn-terminal-secondary {
-    @apply px-4 py-2 bg-gray-800 hover:bg-gray-700 text-green-400 font-bold rounded border-2 border-green-500 transition-colors;
+    @apply px-6 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold rounded-lg border border-gray-600 transition-colors;
   }
   
+  /* Input fields */
   .input-terminal {
-    @apply w-full px-4 py-2 bg-black border-2 border-green-500 rounded text-green-400 placeholder-green-700 focus:outline-none focus:border-green-400 font-mono;
+    @apply w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-cyan-500 font-mono transition-colors;
   }
   
+  /* Card components */
   .card-terminal {
-    @apply bg-gray-900 border-2 border-green-500 rounded-lg p-6 shadow-xl shadow-green-500/10;
+    @apply bg-gray-800 border border-gray-700 rounded-lg p-6 shadow-lg;
   }
   
+  /* Modal overlay */
   .modal-overlay {
-    @apply fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4;
+    @apply fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-50 p-4;
   }
   
+  /* Glowing text */
   .glow-text {
-    text-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    @apply text-cyan-400 font-bold;
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
   }
   
+  /* Scanline effect */
   .scanline {
     position: relative;
-    overflow: hidden;
   }
   
-  .scanline::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: rgba(34, 197, 94, 0.3);
-    animation: scan 8s linear infinite;
-  }
-  
-  @keyframes scan {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(100vh); }
-  }
-  
+  /* Blinking cursor */
   .blink {
     animation: blink 1s step-end infinite;
   }
@@ -86,22 +78,137 @@
   @keyframes blink {
     50% { opacity: 0; }
   }
+  
+  /* Status colors */
+  .text-success {
+    @apply text-emerald-400 font-semibold;
+  }
+  
+  .text-error {
+    @apply text-rose-400 font-semibold;
+  }
+  
+  .bg-success-light {
+    @apply bg-emerald-900/30 border-emerald-700;
+  }
+  
+  .bg-error-light {
+    @apply bg-rose-900/30 border-rose-700;
+  }
+  
+  /* Table styling */
+  .terminal-table {
+    @apply w-full text-sm;
+  }
+  
+  .terminal-table thead {
+    @apply border-b border-gray-700 bg-gray-900;
+  }
+  
+  .terminal-table th {
+    @apply text-left px-3 py-2 text-cyan-400 font-bold;
+  }
+  
+  .terminal-table tbody tr {
+    @apply border-b border-gray-700 hover:bg-gray-700/50 transition-colors;
+  }
+  
+  .terminal-table td {
+    @apply px-3 py-2 text-gray-300;
+  }
+  
+  /* Loading spinner */
+  .loading-spinner {
+    @apply inline-block w-4 h-4 border-2 border-gray-500 border-t-cyan-400 rounded-full animate-spin;
+  }
+  
+  /* Flag submission section */
+  .flag-section {
+    @apply mt-8 p-6 bg-gray-900/50 rounded-lg border border-gray-700;
+  }
+  
+  .flag-input {
+    @apply bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-gray-200 w-full focus:outline-none focus:border-cyan-500 font-mono transition-colors;
+  }
+  
+  .flag-submit-btn {
+    @apply bg-cyan-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-cyan-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg;
+  }
 }
 
-/* Custom scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-black;
+  @apply bg-gray-900 rounded-lg;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-green-600 rounded;
+  @apply bg-gray-700 rounded-lg border-2 border-gray-900;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-green-500;
+  @apply bg-gray-600;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out;
+}
+
+/* Glass effect */
+.glass {
+  @apply bg-gray-800/80 backdrop-blur-sm border border-gray-700;
+}
+
+.glass-dark {
+  @apply bg-gray-900/80 backdrop-blur-sm border border-gray-700;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500;
+}
+
+/* Additional CTF-specific elements */
+.hacker-text {
+  @apply text-green-400 font-mono;
+}
+
+.console-line {
+  @apply border-l-4 border-cyan-500 pl-3 py-1 my-2 font-mono text-gray-300;
+}
+
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-blue {
+  @apply bg-blue-900/50 text-blue-300 border border-blue-800;
+}
+
+.badge-green {
+  @apply bg-emerald-900/50 text-emerald-300 border border-emerald-800;
+}
+
+.badge-red {
+  @apply bg-rose-900/50 text-rose-300 border border-rose-800;
+}
+
+.badge-yellow {
+  @apply bg-amber-900/50 text-amber-300 border border-amber-800;
 }

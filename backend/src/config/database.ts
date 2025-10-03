@@ -150,7 +150,19 @@ export async function initMainDb() {
         completed INTEGER DEFAULT 0,
         completion_time INTEGER,
         score INTEGER,
+        attempts INTEGER DEFAULT 0,
+        last_attempt_time INTEGER,
         FOREIGN KEY (user_id) REFERENCES users(id)
+      );
+
+      -- Create challenge_config table for dynamic flag
+      CREATE TABLE IF NOT EXISTS challenge_config (
+        id INTEGER PRIMARY KEY DEFAULT 1,
+        flag TEXT NOT NULL DEFAULT 'FLAG{SQL_INJECTION_MASTER_CHALLENGE_COMPLETE}',
+        points INTEGER DEFAULT 500,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_by INTEGER,
+        FOREIGN KEY (updated_by) REFERENCES users(id)
       );
 
       -- Admin tables
@@ -177,6 +189,10 @@ export async function initMainDb() {
         ('challenge_enabled', 'true', 'Whether the challenge is enabled for users'),
         ('registration_enabled', 'true', 'Whether new user registration is enabled'),
         ('max_queries_per_user', '1000', 'Maximum number of queries per user');
+
+      -- Insert default flag configuration if not exists
+      INSERT OR IGNORE INTO challenge_config (id, flag, points)
+      VALUES (1, 'FLAG{SQL_INJECTION_MASTER_CHALLENGE_COMPLETE}', 500);
 
       -- Create default admin user if none exists
       INSERT OR IGNORE INTO users (username, email, password_hash, is_admin)

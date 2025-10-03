@@ -1,8 +1,20 @@
 import { mainDb } from '../config/database.js';
 
-// The correct flag
-const CORRECT_FLAG = 'FLAG{SQL_INJECTION_MASTER_CHALLENGE_COMPLETE}';
-const FLAG_POINTS = 500;
+// Get dynamic flag from database
+async function getDynamicFlag(): Promise<{ flag: string; points: number }> {
+  const configStmt = mainDb.prepare('SELECT flag, points FROM challenge_config WHERE id = 1');
+  const config = configStmt.get();
+  
+  if (config) {
+    return { flag: config.flag, points: config.points };
+  }
+  
+  // Fallback to default if not found
+  return { 
+    flag: 'FLAG{SQL_INJECTION_MASTER_CHALLENGE_COMPLETE}', 
+    points: 500 
+  };
+}
 
 // Initialize tables function (will be called when needed)
 async function ensureTablesExist() {
@@ -116,12 +128,17 @@ export async function submitFlagForUser(userId: number, flag: string) {
   // Make sure tables exist
   await ensureTablesExist();
 
+  // Get dynamic flag configuration
+  const { flag: correctFlag, points } = await getDynamicFlag();
+
   // Check if challenge is started
   const statusStmt = mainDb.prepare(`
     SELECT 
       started,
       start_time,
-      completed
+      completed,
+      attempts,
+      last_attempt_time
     FROM challenge_status
     WHERE user_id = ?
   `);
@@ -129,21 +146,38 @@ export async function submitFlagForUser(userId: number, flag: string) {
   const status = statusStmt.get(userId);
   
   if (!status || !status.started) {
-    return {
-      success: false,
-      message: 'You need to start the challenge first'
-    };
+    // Auto-start the challenge if not started
+    await startChallengeForUser(userId);
+    const newStatus = statusStmt.get(userId);
+    if (!newStatus) {
+      return {
+        success: false,
+        message: 'Failed to start challenge'
+      };
+    }
   }
   
-  if (status.completed) {
+  if (status && status.completed) {
     return {
       success: false,
       message: 'You have already completed this challenge'
     };
   }
   
+  // Update attempt count
+  const updateAttemptsStmt = mainDb.prepare(`
+    UPDATE challenge_status
+    SET 
+      attempts = COALESCE(attempts, 0) + 1,
+      last_attempt_time = ?
+    WHERE user_id = ?
+  `);
+  
+  const now = Date.now();
+  updateAttemptsStmt.run(now, userId);
+  
   // Check if flag is correct
-  if (flag.trim() !== CORRECT_FLAG) {
+  if (flag.trim() !== correctFlag) {
     return {
       success: false,
       message: 'Incorrect flag. Keep trying!'
@@ -151,8 +185,7 @@ export async function submitFlagForUser(userId: number, flag: string) {
   }
   
   // Flag is correct, mark as completed
-  const now = Date.now();
-  const timeTaken = now - status.start_time;
+  const timeTaken = now - (status?.start_time || now);
   
   // Update challenge status
   const updateStmt = mainDb.prepare(`
@@ -164,7 +197,7 @@ export async function submitFlagForUser(userId: number, flag: string) {
     WHERE user_id = ?
   `);
   
-  updateStmt.run(now, FLAG_POINTS, userId);
+  updateStmt.run(now, points, userId);
   
   // Add to scoreboard if not already there
   const checkScoreStmt = mainDb.prepare('SELECT user_id FROM scores WHERE user_id = ?');
@@ -176,7 +209,7 @@ export async function submitFlagForUser(userId: number, flag: string) {
       VALUES (?, ?, CURRENT_TIMESTAMP)
     `);
     
-    scoreStmt.run(userId, FLAG_POINTS);
+    scoreStmt.run(userId, points);
   }
   
   return {
@@ -184,6 +217,6 @@ export async function submitFlagForUser(userId: number, flag: string) {
     message: 'Congratulations! You have successfully completed the challenge!',
     completionTime: now,
     timeTaken: timeTaken,
-    score: FLAG_POINTS
+    score: points
   };
 }

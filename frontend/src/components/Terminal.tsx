@@ -14,7 +14,7 @@ export const Terminal: React.FC = () => {
   const [lines, setLines] = useState<TerminalLine[]>([
     {
       type: 'system',
-      content: 'SQL Injection Challenge Terminal v2.0',
+      content: 'PROTON Association Terminal v1.0.0',
       timestamp: new Date(),
     },
     {
@@ -37,13 +37,7 @@ export const Terminal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const [flagInput, setFlagInput] = useState('');
-  const [flagSubmitStatus, setFlagSubmitStatus] = useState<{
-    message: string;
-    type: 'success' | 'error' | null;
-  }>({ message: '', type: null });
-  
-  const { challengeState, submitFlagAnswer } = useChallengeState();
+  const { challengeState } = useChallengeState();
   const terminalEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -54,6 +48,9 @@ export const Terminal: React.FC = () => {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  // Challenge timer is now started automatically on login
+  // No need to auto-start here
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +82,7 @@ export const Terminal: React.FC = () => {
         sanitizedResult.rows = result.rows.map(row => 
           row.map(cell => {
             if (typeof cell === 'string' && cell.includes('FLAG{')) {
-              return '[FLAG FOUND! Submit your answer below]';
+              return '🔐 [FLAG DETECTED! Submit below to verify]';
             }
             return cell;
           })
@@ -95,7 +92,7 @@ export const Terminal: React.FC = () => {
       setLines(prev => [...prev, {
         type: result.flagFound ? 'success' : 'output',
         content: result.flagFound 
-          ? `🎉 FLAG PATTERN DETECTED! Submit the exact flag below to claim points.` 
+          ? `🎯 FLAG PATTERN DETECTED! Submit the exact flag below to claim your points.` 
           : `Query executed successfully (${result.executionTime}ms)`,
         data: sanitizedResult,
         timestamp: new Date(),
@@ -141,94 +138,65 @@ export const Terminal: React.FC = () => {
     }]);
   };
 
-  const handleFlagSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!flagInput.trim()) return;
-    
-    setFlagSubmitStatus({ message: 'Verifying flag...', type: null });
-    
-    try {
-      const result = await submitFlagAnswer(flagInput.trim());
-      
-      if (result.success) {
-        setFlagSubmitStatus({ 
-          message: result.message, 
-          type: 'success' 
-        });
-        setFlagInput('');
-      } else {
-        setFlagSubmitStatus({ 
-          message: result.message, 
-          type: 'error' 
-        });
-      }
-    } catch (error: any) {
-      setFlagSubmitStatus({ 
-        message: 'Failed to submit flag', 
-        type: 'error' 
-      });
-    }
-  };
-
   return (
-    <div className="terminal-window h-full">
+    <div className="terminal-window h-full animate-slide-in">
       <div className="terminal-header">
         <div className="flex gap-2">
-          <div className="w-3 h-3 rounded-full bg-red-500"></div>
-          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+          <div className="w-3 h-3 rounded-full bg-red-400 hover:bg-red-500 transition-colors"></div>
+          <div className="w-3 h-3 rounded-full bg-yellow-400 hover:bg-yellow-500 transition-colors"></div>
+          <div className="w-3 h-3 rounded-full bg-green-400 hover:bg-green-500 transition-colors"></div>
         </div>
-        <span className="text-green-400 font-bold">root@sqlctf:~$</span>
+        <span className="text-white font-bold">proton@kali:~$</span>
         <button
           onClick={clearTerminal}
-          className="text-green-500 hover:text-green-400 text-sm"
+          className="text-white/90 hover:text-white text-sm font-semibold transition-colors"
         >
           CLEAR
         </button>
       </div>
 
       <div 
-        className="terminal-body overflow-auto" 
+        className="terminal-body overflow-auto rounded-b-2xl" 
         style={{ minHeight: '500px', maxHeight: '70vh' }}
         onClick={() => inputRef.current?.focus()}
       >
         <div className="space-y-2 mb-4">
           {lines.map((line, index) => (
-            <div key={index}>
+            <div key={index} className="animate-slide-in">
               {line.type === 'input' && (
                 <div className="flex gap-2">
-                  <span className="terminal-prompt">root@sqlctf:~$</span>
-                  <span className="text-green-300">{line.content}</span>
+                  <span className="terminal-prompt">proton@kali:~$</span>
+                  <span className="text-blue-600 font-semibold">{line.content}</span>
                 </div>
               )}
               
               {line.type === 'output' && (
-                <div className="text-green-400">{line.content}</div>
+                <div className="text-slate-600">{line.content}</div>
               )}
               
               {line.type === 'system' && (
-                <div className="text-green-600">[SYSTEM] {line.content}</div>
+                <div className="text-cyan-600 font-medium">[SYSTEM] {line.content}</div>
               )}
               
               {line.type === 'error' && (
-                <div className="text-red-400">
+                <div className="text-rose-600">
                   <span className="font-bold">[ERROR]</span> {line.content}
                 </div>
               )}
               
               {line.type === 'success' && (
-                <div className="text-yellow-400 font-bold glow-text">
+                <div className="text-emerald-600 font-bold glow-text">
                   [SUCCESS] {line.content}
                 </div>
               )}
 
               {line.data && line.data.rows.length > 0 && (
                 <div className="mt-2 overflow-x-auto">
-                  <table className="w-full text-sm border-collapse">
+                  <table className="terminal-table">
                     <thead>
-                      <tr className="border-b-2 border-green-700">
+                      <tr>
                         {line.data.columns.map((col, i) => (
-                          <th key={i} className="text-left px-3 py-2 text-green-500 font-bold">
+                          <th key={i}>
                             {col}
                           </th>
                         ))}
@@ -236,11 +204,11 @@ export const Terminal: React.FC = () => {
                     </thead>
                     <tbody>
                       {line.data.rows.map((row, i) => (
-                        <tr key={i} className="border-b border-green-900">
+                        <tr key={i}>
                           {row.map((cell, j) => (
-                            <td key={j} className="px-3 py-2 text-green-300">
+                            <td key={j}>
                               {cell === null ? (
-                                <span className="text-green-700 italic">NULL</span>
+                                <span className="text-slate-400 italic">NULL</span>
                               ) : (
                                 String(cell)
                               )}
@@ -250,14 +218,14 @@ export const Terminal: React.FC = () => {
                       ))}
                     </tbody>
                   </table>
-                  <div className="text-green-700 text-xs mt-2">
+                  <div className="text-slate-500 text-xs mt-2">
                     → {line.data.rowCount} row(s) returned
                   </div>
                 </div>
               )}
 
               {line.data && line.data.rows.length === 0 && (
-                <div className="text-green-700 italic mt-2">→ Query returned no results</div>
+                <div className="text-slate-500 italic mt-2">→ Query returned no results</div>
               )}
             </div>
           ))}
@@ -266,7 +234,7 @@ export const Terminal: React.FC = () => {
 
         {/* Input Line */}
         <form onSubmit={handleSubmit} className="flex gap-2">
-          <span className="terminal-prompt">root@sqlctf:~$</span>
+          <span className="terminal-prompt">proton@kali:~$</span>
           <input
             ref={inputRef}
             type="text"
@@ -284,70 +252,9 @@ export const Terminal: React.FC = () => {
             }
             autoComplete="off"
           />
-          {loading && <span className="text-green-500 blink">█</span>}
+          {loading && <span className="loading-spinner"></span>}
         </form>
 
-        {/* Flag Submission Form */}
-        {!challengeState.completed && (
-          <div className="mt-8 border-t-2 border-green-700 pt-4">
-            <h3 className="text-green-400 font-bold mb-2">SUBMIT FLAG</h3>
-            <form onSubmit={handleFlagSubmit} className="flex items-center gap-2">
-              <input
-                type="text"
-                value={flagInput}
-                onChange={(e) => setFlagInput(e.target.value)}
-                className="bg-black border-2 border-green-700 rounded px-3 py-2 text-green-300 w-full focus:outline-none focus:border-green-500"
-                placeholder="Enter flag (e.g., FLAG{...})"
-                autoComplete="off"
-                disabled={challengeState.completed}
-              />
-              <button
-                type="submit"
-                className="bg-green-700 text-black font-bold px-4 py-2 rounded hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!flagInput.trim() || challengeState.completed}
-              >
-                VERIFY
-              </button>
-            </form>
-            {flagSubmitStatus.message && (
-              <div className={`mt-2 text-sm ${
-                flagSubmitStatus.type === 'success' 
-                ? 'text-yellow-400' 
-                : flagSubmitStatus.type === 'error' 
-                ? 'text-red-400' 
-                : 'text-green-500'
-              }`}>
-                {flagSubmitStatus.message}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Challenge Completed Message */}
-        {challengeState.completed && (
-          <div className="mt-8 border-2 border-yellow-500 rounded-lg bg-yellow-900/20 p-4">
-            <h3 className="text-yellow-400 font-bold text-xl mb-2">🏆 CHALLENGE COMPLETED!</h3>
-            <p className="text-green-300 mb-2">
-              Congratulations! You've successfully solved the SQL injection challenge.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 mt-4">
-              <div className="bg-black/50 border border-green-700 rounded px-4 py-2">
-                <span className="text-green-500 text-sm">SCORE</span>
-                <p className="text-yellow-400 font-bold text-xl">{challengeState.score} points</p>
-              </div>
-              <div className="bg-black/50 border border-green-700 rounded px-4 py-2">
-                <span className="text-green-500 text-sm">TIME</span>
-                <p className="text-yellow-400 font-bold text-xl">
-                  {formatTime(
-                    challengeState.completionTime && challengeState.startTime
-                      ? challengeState.completionTime - challengeState.startTime
-                      : 0
-                  )}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

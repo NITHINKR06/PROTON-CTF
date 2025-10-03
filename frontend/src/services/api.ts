@@ -105,4 +105,15 @@ export const updateAdminSetting = async (key: string, value: string) => {
   return data;
 };
 
+// Admin Flag Management
+export const getAdminFlag = async () => {
+  const { data } = await api.get('/admin/flag');
+  return data;
+};
+
+export const updateAdminFlag = async (flag: string) => {
+  const { data } = await api.put('/admin/flag', { flag });
+  return data;
+};
+
 export default api;

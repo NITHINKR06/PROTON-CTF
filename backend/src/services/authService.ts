@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { mainDb } from '../config/database.js';
 import type { User, UserSession } from '../types/index.js';
+import { startChallengeForUser } from './challengeStatusService.js';
 
 const SALT_ROUNDS = 10;
 
@@ -46,6 +47,14 @@ export async function loginUser(usernameOrEmail: string, password: string): Prom
 
   if (!valid) {
     throw new Error('Invalid credentials');
+  }
+
+  // Auto-start challenge timer on login (if not already started)
+  try {
+    await startChallengeForUser(user.id);
+  } catch (error) {
+    console.error('Failed to auto-start challenge timer:', error);
+    // Don't fail login if timer start fails
   }
 
   return {

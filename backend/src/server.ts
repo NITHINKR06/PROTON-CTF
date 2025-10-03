@@ -9,6 +9,7 @@ import authRoutes from './routes/auth.js';
 import challengeRoutes from './routes/challenge.js';
 import scoreboardRoutes from './routes/scoreboard.js';
 import adminRoutes from './routes/admin.js';
+import adminFlagRoutes from './routes/adminFlag.js';
 import { mainDb } from './config/database.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
 
@@ -39,13 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/challenge', challengeRoutes);
 app.use('/api/scoreboard', scoreboardRoutes);
 app.use('/api/admin', adminRoutes);
-
-// ... rest of the file remains the same
-
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/challenge', challengeRoutes);
-app.use('/api/scoreboard', scoreboardRoutes);
+app.use('/api/admin', adminFlagRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

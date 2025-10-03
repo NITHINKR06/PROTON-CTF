@@ -16,8 +16,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <span className="text-green-500 font-bold text-xl">LOADING<span className="blink">█</span></span>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
+        <div className="flex items-center gap-2">
+          <span className="text-cyan-600 font-bold text-xl">LOADING</span>
+          <span className="loading-spinner w-6 h-6"></span>
+        </div>
       </div>
     );
   }

@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface AdminSidebarProps {
-  activeSection: 'dashboard' | 'users' | 'queries' | 'settings';
-  onSectionChange: (section: 'dashboard' | 'users' | 'queries' | 'settings') => void;
+  activeSection: 'dashboard' | 'users' | 'queries' | 'settings' | 'flag';
+  onSectionChange: (section: 'dashboard' | 'users' | 'queries' | 'settings' | 'flag') => void;
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({ 
@@ -59,6 +59,17 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             }`}
           >
             ⚙️ Settings
+          </button>
+          
+          <button
+            onClick={() => onSectionChange('flag')}
+            className={`w-full text-left px-4 py-2 rounded transition-colors ${
+              activeSection === 'flag'
+                ? 'bg-green-800 text-white'
+                : 'text-green-500 hover:bg-green-900/50'
+            }`}
+          >
+            🚩 Flag Management
           </button>
         </nav>
       </div>
