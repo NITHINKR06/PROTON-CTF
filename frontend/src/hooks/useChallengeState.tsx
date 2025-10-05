@@ -11,10 +11,17 @@ interface ChallengeState {
   loading: boolean;
 }
 
+interface FlagSubmitResult {
+  success: boolean;
+  message: string;
+  isDummy?: boolean;
+  hint?: string;
+}
+
 interface ChallengeContextType {
   challengeState: ChallengeState;
   startChallengeTimer: () => Promise<void>;
-  submitFlagAnswer: (flag: string) => Promise<{ success: boolean; message: string }>;
+  submitFlagAnswer: (flag: string) => Promise<FlagSubmitResult>;
 }
 
 const ChallengeContext = createContext<ChallengeContextType | undefined>(undefined);
@@ -78,7 +85,7 @@ export const ChallengeProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   };
 
-  const submitFlagAnswer = async (flag: string): Promise<{ success: boolean; message: string }> => {
+  const submitFlagAnswer = async (flag: string): Promise<FlagSubmitResult> => {
     try {
       const result = await submitFlag(flag);
       
@@ -93,7 +100,9 @@ export const ChallengeProvider: React.FC<{ children: ReactNode }> = ({ children 
       
       return {
         success: result.success,
-        message: result.message
+        message: result.message,
+        isDummy: result.isDummy,
+        hint: result.hint
       };
     } catch (error: any) {
       return {

@@ -7,7 +7,16 @@ export interface AuthRequest extends Request {
 }
 
 export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
-  const token = req.cookies.token;
+  // Check for token in cookies first
+  let token = req.cookies.token;
+  
+  // If not in cookies, check Authorization header
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
 
   if (!token) {
     return res.status(401).json({ error: 'Authentication required' });
@@ -25,7 +34,16 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
 }
 
 export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction) {
-  const token = req.cookies.token;
+  // Check for token in cookies first
+  let token = req.cookies.token;
+  
+  // If not in cookies, check Authorization header
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
 
   if (token) {
     const user = verifyToken(token);

@@ -192,7 +192,18 @@ export async function initMainDb() {
 
       -- Insert default flag configuration if not exists
       INSERT OR IGNORE INTO challenge_config (id, flag, points)
-      VALUES (1, 'FLAG{SQL_INJECTION_MASTER_CHALLENGE_COMPLETE}', 500);
+      VALUES (1, 'FLAG{MASTER_SQL_INJECTION_2024}', 500);
+      
+      -- Create flag attempts tracking table
+      CREATE TABLE IF NOT EXISTS flag_attempts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        flag_submitted TEXT NOT NULL,
+        is_dummy INTEGER DEFAULT 0,
+        is_correct INTEGER DEFAULT 0,
+        submitted_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      );
 
       -- Create default admin user if none exists
       INSERT OR IGNORE INTO users (username, email, password_hash, is_admin)
@@ -329,8 +340,9 @@ export async function initializeChallengeTemplate() {
       (1, 'maintenance_mode', 'false', '2024-01-20 10:00:00'),
       (2, 'debug_mode', 'false', '2024-01-20 10:00:00'),
       (3, 'api_rate_limit', '100', '2024-01-20 10:00:00'),
-      (4, 'encryption_key', 'AES256:7h3_k3y_15_n07_h3r3', '2024-01-20 10:00:00'),
-      (5, 'vault_access_code', 'VAULT_2024_SECURE', '2024-01-20 10:00:00');
+      (4, 'cipher_method', 'Caesar shift by 13 (ROT13)', '2024-01-20 10:00:00'),
+      (5, 'vault_access_code', 'VAULT_2024_SECURE', '2024-01-20 10:00:00'),
+      (6, 'security_note', 'All sensitive data uses the cipher method above', '2024-01-20 10:00:00');
 
     -- Insert security logs with hints
     INSERT INTO security_audit_logs (id, event_type, event_data, severity, timestamp) VALUES
@@ -353,19 +365,16 @@ export async function initializeChallengeTemplate() {
     INSERT INTO debug_flags (id, flag_name, flag_value, is_active) VALUES
       (1, 'test_flag', 'FLAG{this_is_not_the_real_flag}', 0),
       (2, 'dev_flag', 'FLAG{development_flag_ignore}', 0),
-      (3, 'staging_flag', 'FLAG{staging_environment_2024}', 0),
+      (3, 'production_flag', 'FLAG{YOU_FOUND_ME_BUT_TRY_HARDER}', 1),  -- DUMMY FLAG - Easy to find
       (4, 'debug_flag', 'FLAG{debug_mode_enabled_false}', 0),
       (5, 'temp_flag', 'FLAG{temporary_flag_for_testing}', 0);
 
-    -- Insert the REAL flag segments (requires complex UNION and ordering)
+    -- Insert the REAL flag using Caesar cipher (ROT13)
+    -- Original: FLAG{MASTER_SQL_INJECTION_2024}
+    -- ROT13: SYNT{ZNFGRE_FDY_VARWPGVBA_2024}
     INSERT INTO system_internal_config (config_id, config_data, config_type, restricted) VALUES
-      ('A001', 'RkxBR3', 'flag_segment', 1),
-      ('A002', 'tTUUxf', 'flag_segment', 1),
-      ('A003', 'SU5KRUN', 'flag_segment', 1),
-      ('A004', 'USU9OX0', 'flag_segment', 1),
-      ('A005', 'VYQVJUX0', 'flag_segment', 1),
-      ('A006', '0hBTExFTkd', 'flag_segment', 1),
-      ('A007', 'FX0NPTVBMRVRFfQ==', 'flag_segment', 1),
+      ('SEC_001', 'SYNT{ZNFGRE_FDY_VARWPGVBA_2024}', 'security_flag', 1),
+      ('SEC_002', 'This is encrypted with the method in admin_panel', 'security_note', 1),
       ('B001', 'system_version', 'metadata', 0),
       ('B002', 'database_schema', 'metadata', 0),
       ('C001', 'encryption_salt', 'security', 1);

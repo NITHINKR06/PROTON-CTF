@@ -5,10 +5,13 @@ import { logQuery } from '../services/queryLogService.js';
 import type { QueryResult } from '../types/index.js';
 
 const FLAG_PATTERN = /FLAG\{[^}]+\}/i;
+const CAESAR_FLAG_PATTERN = /SYNT\{[^}]+\}/i;  // ROT13 version of FLAG
 const FLAG_POINTS = 500;
 const MAX_ROWS = 100;
 const QUERY_TIMEOUT = 5000;
-const CORRECT_FLAG = 'FLAG{SQL_INJECTION_MASTER_CHALLENGE_COMPLETE}';
+const CORRECT_FLAG = 'FLAG{MASTER_SQL_INJECTION_2024}';
+const CORRECT_FLAG_ROT13 = 'SYNT{ZNFGRE_FDY_VARWPGVBA_2024}';
+const DUMMY_FLAG = 'FLAG{YOU_FOUND_ME_BUT_TRY_HARDER}';
 
 export async function executeUserQuery(userId: number, query: string): Promise<QueryResult> {
   const validation = validateSqlQuery(query);
@@ -88,16 +91,28 @@ function executeQuery(db: any, query: string): Promise<{ columns: string[]; rows
 }
 
 function checkForFlag(rows: any[][]): boolean {
-  // Check for the complete decoded flag
+  // Check for the complete decoded flag or Caesar cipher version
   for (const row of rows) {
     for (const cell of row) {
       if (cell && typeof cell === 'string') {
-        // Check for the exact flag
+        // Check for the exact correct flag
         if (cell === CORRECT_FLAG) {
           return true;
         }
+        // Check for the ROT13 encoded flag (they found it but didn't decode)
+        if (cell === CORRECT_FLAG_ROT13) {
+          return true;
+        }
+        // Check for the dummy flag
+        if (cell === DUMMY_FLAG) {
+          return true;
+        }
         // Also check if they managed to decode it correctly
-        if (FLAG_PATTERN.test(cell) && cell.includes('SQL_INJECTION_MASTER_CHALLENGE_COMPLETE')) {
+        if (FLAG_PATTERN.test(cell) && cell.includes('MASTER_SQL_INJECTION_2024')) {
+          return true;
+        }
+        // Check for Caesar cipher pattern
+        if (CAESAR_FLAG_PATTERN.test(cell) && cell.includes('ZNFGRE_FDY_VARWPGVBA_2024')) {
           return true;
         }
       }

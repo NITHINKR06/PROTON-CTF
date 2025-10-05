@@ -4,17 +4,17 @@ const HINTS = [
   {
     id: 1,
     title: 'Table Enumeration',
-    content: 'Standard table discovery is blocked. Try using UNION with a known table to enumerate others. Example: SELECT name FROM products WHERE 1=0 UNION SELECT name FROM ??? WHERE type="table"',
+    content: 'Start with simple tables like debug_flags (check is_active=1). But beware, not all flags are real! Try: SELECT * FROM debug_flags WHERE is_active=1',
   },
   {
     id: 2,
     title: 'Finding Hidden Tables',
-    content: 'Look for tables with names like: admin_panel, security_audit_logs, encrypted_vault, system_internal_config. The security logs contain valuable information about the flag storage.',
+    content: 'Look deeper: admin_panel, security_audit_logs, system_internal_config. The admin_panel table mentions a cipher method. Check: SELECT * FROM admin_panel WHERE setting_name LIKE "%cipher%"',
   },
   {
     id: 3,
-    title: 'Flag Assembly',
-    content: 'The flag is in system_internal_config table, split into segments with config_type="flag_segment". Order by config_id (A001-A007), concatenate config_data values, then base64 decode the result.',
+    title: 'Decoding the Flag',
+    content: 'The real flag is in system_internal_config with config_type="security_flag". It uses ROT13 cipher (Caesar shift by 13). To decode: A↔N, B↔O, etc. SYNT becomes FLAG.',
   },
 ];
 

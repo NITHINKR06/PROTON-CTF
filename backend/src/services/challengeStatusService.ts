@@ -1,5 +1,8 @@
 import { mainDb } from '../config/database.js';
 
+// Define dummy flag
+const DUMMY_FLAG = 'FLAG{YOU_FOUND_ME_BUT_TRY_HARDER}';
+
 // Get dynamic flag from database
 async function getDynamicFlag(): Promise<{ flag: string; points: number }> {
   const configStmt = mainDb.prepare('SELECT flag, points FROM challenge_config WHERE id = 1');
@@ -11,9 +14,31 @@ async function getDynamicFlag(): Promise<{ flag: string; points: number }> {
   
   // Fallback to default if not found
   return { 
-    flag: 'FLAG{SQL_INJECTION_MASTER_CHALLENGE_COMPLETE}', 
+    flag: 'FLAG{MASTER_SQL_INJECTION_2024}', 
     points: 500 
   };
+}
+
+// Track flag attempt
+async function trackFlagAttempt(userId: number, flag: string, isDummy: boolean, isCorrect: boolean) {
+  const stmt = mainDb.prepare(`
+    INSERT INTO flag_attempts (user_id, flag_submitted, is_dummy, is_correct)
+    VALUES (?, ?, ?, ?)
+  `);
+  
+  stmt.run(userId, flag, isDummy ? 1 : 0, isCorrect ? 1 : 0);
+}
+
+// Get user's flag attempts
+async function getUserFlagAttempts(userId: number) {
+  const stmt = mainDb.prepare(`
+    SELECT flag_submitted, is_dummy, is_correct, submitted_at
+    FROM flag_attempts
+    WHERE user_id = ?
+    ORDER BY submitted_at DESC
+  `);
+  
+  return stmt.all(userId);
 }
 
 // Initialize tables function (will be called when needed)
@@ -176,13 +201,52 @@ export async function submitFlagForUser(userId: number, flag: string) {
   const now = Date.now();
   updateAttemptsStmt.run(now, userId);
   
+  // Check if it's the dummy flag
+  if (flag.trim() === DUMMY_FLAG) {
+    // Track dummy flag attempt
+    await trackFlagAttempt(userId, flag, true, false);
+    
+    // Get previous attempts to see if they already tried the dummy
+    const attempts = await getUserFlagAttempts(userId);
+    const previousDummyAttempts = attempts.filter(a => a.is_dummy === 1).length;
+    
+    if (previousDummyAttempts === 1) {
+      return {
+        success: false,
+        isDummy: true,
+        message: '🎭 Nice try! But this is just a decoy flag. The real flag is hidden deeper. Look for clues in the admin_panel table about how sensitive data is protected.',
+        hint: 'Check the cipher_method in admin_panel table'
+      };
+    } else if (previousDummyAttempts > 1) {
+      return {
+        success: false,
+        isDummy: true,
+        message: '🔍 You already found this dummy flag! The real flag is encrypted. Check system_internal_config table and remember the cipher method from admin_panel.',
+        hint: 'ROT13 cipher is being used'
+      };
+    } else {
+      return {
+        success: false,
+        isDummy: true,
+        message: '🎯 Good job finding a flag! But wait... this seems too easy. This might be a decoy. Real hackers dig deeper. Try harder!',
+        hint: 'Explore hidden tables'
+      };
+    }
+  }
+  
   // Check if flag is correct
   if (flag.trim() !== correctFlag) {
+    // Track incorrect attempt
+    await trackFlagAttempt(userId, flag, false, false);
+    
     return {
       success: false,
       message: 'Incorrect flag. Keep trying!'
     };
   }
+  
+  // Track correct flag submission
+  await trackFlagAttempt(userId, flag, false, true);
   
   // Flag is correct, mark as completed
   const timeTaken = now - (status?.start_time || now);

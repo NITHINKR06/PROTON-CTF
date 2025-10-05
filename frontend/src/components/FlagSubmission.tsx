@@ -43,6 +43,14 @@ export const FlagSubmission: React.FC = () => {
           type: 'success' 
         });
         setFlagInput('');
+      } else if (result.isDummy) {
+        // Special handling for dummy flag
+        setFlagSubmitStatus({ 
+          message: result.message, 
+          type: 'error' 
+        });
+        // Clear the input so they try something else
+        setFlagInput('');
       } else {
         setFlagSubmitStatus({ 
           message: `❌ ${result.message}`, 

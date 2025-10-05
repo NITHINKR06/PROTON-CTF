@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 
 export const LoginPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,8 +20,10 @@ export const LoginPage: React.FC = () => {
 
     try {
       if (isLogin) {
-        await login(username, password);
+        // For login, use the usernameOrEmail field
+        await login(usernameOrEmail, password);
       } else {
+        // For registration, use separate username and email fields
         if (!email) {
           setError('Email is required');
           setLoading(false);
@@ -72,36 +75,52 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-cyan-700 mb-2 font-bold text-sm">
-                <span className="terminal-prompt">$</span> USERNAME
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="input-terminal"
-                placeholder="Enter username..."
-                required
-                autoComplete="username"
-              />
-            </div>
-
-            {!isLogin && (
+            {isLogin ? (
               <div>
                 <label className="block text-cyan-700 mb-2 font-bold text-sm">
-                  <span className="terminal-prompt">$</span> EMAIL
+                  <span className="terminal-prompt">$</span> USERNAME OR EMAIL
                 </label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  value={usernameOrEmail}
+                  onChange={(e) => setUsernameOrEmail(e.target.value)}
                   className="input-terminal"
-                  placeholder="Enter email..."
+                  placeholder="Enter username or email..."
                   required
-                  autoComplete="email"
+                  autoComplete="username"
                 />
               </div>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-cyan-700 mb-2 font-bold text-sm">
+                    <span className="terminal-prompt">$</span> USERNAME
+                  </label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="input-terminal"
+                    placeholder="Enter username..."
+                    required
+                    autoComplete="username"
+                  />
+                </div>
+                <div>
+                  <label className="block text-cyan-700 mb-2 font-bold text-sm">
+                    <span className="terminal-prompt">$</span> EMAIL
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-terminal"
+                    placeholder="Enter email..."
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+              </>
             )}
 
             <div>
@@ -147,6 +166,11 @@ export const LoginPage: React.FC = () => {
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError('');
+                // Clear form fields when switching between login and register
+                setUsernameOrEmail('');
+                setUsername('');
+                setEmail('');
+                setPassword('');
               }}
               className="text-cyan-600 hover:text-cyan-700 font-medium transition-colors"
             >
